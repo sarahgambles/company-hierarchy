@@ -3,7 +3,7 @@
 // Inquirer and write file require variables
 const inquirer = require('inquirer');
 
-const db = require('./db/db');
+const db = require('./db/db.js');
 
 // array of questions to get info about the employee
 const promptManager = () => {
@@ -26,6 +26,7 @@ const promptManager = () => {
 
     // add a quit running inquirer
         .then(userInput => {
+            console.log(userInput)
             switch (userInput.manager_input) 
             // add a quit 
             {
