@@ -4,67 +4,96 @@
 const inquirer = require('inquirer');
 
 const db = require('./db/db.js');
+require("console.table");
+
+
 
 // array of questions to get info about the employee
 const promptManager = () => {
     return inquirer.prompt([
         {
-            type: "checkbox",
+            type: "list",
             name: "manager_input",
             message: "What would you like to do?",
-            choices: ["View all departments",
-                "View all roles",
-                "View all employees",
-                "Add a department",
-                "Add a role",
-                "Add an employee",
-                "Update an employee role",
-                "Quit"
+            choices: [
+                {
+                    name: "View all departments",
+                    value: "VIEW_DEPARTMENTS"
+                },
+                {
+                    name: "View all roles",
+                    value: "VIEW_ROLES"
+                },
+                {
+                    name: "View all employees",
+                    value: "VIEW_EMPLOYEES"
+                },
+                {
+                    name: "Add a department",
+                    value: "ADD_DEPARTMENT"
+                },
+                {
+                    name: "Add a role",
+                    value: "ADD_ROLE"
+                },
+                {
+                    name: "Add an employee",
+                    value: "ADD_EMPLOYEE"
+                },
+                {
+                    name: "Update an employee role",
+                    value: "UPDATE_EMPLOYEE"
+                },
+                {
+                    name: "Quit",
+                    value: "QUIT"
+                }
             ]
         },
     ])
-
-    // add a quit running inquirer
         .then(userInput => {
-            console.log(userInput)
+            
             switch (userInput.manager_input) 
             // add a quit 
             {
-                case "View all departments":
+                case "VIEW_DEPARTMENTS":
                     // display departments
                     displayDepartments();
                     break;
-                case "View all roles":
+                case "VIEW_ROLES":
                     // display roles
                     displayRoles();
                     break;
-                case "View all employees":
+                case "VIEW_EMPLOYEES":
                     // display employees
                     displayEmployees();
                     break;
-                case "Add a department":
+                case "ADD_DEPARTMENT":
                     // add department
                     createDepartment();
                     break;
-                case "Add a role":
+                case "ADD_ROLE":
                     // add role
                     createRole();
                     break;
-                case "Add an employee":
+                case "ADD_EMPLOYEE":
                     // add an employee
                     createEmployee();
                     break;
-                case "Update employee role":
+                case "UPDATE_EMPLOYEE":
                     // update employee
                     updateEmployeeRole();
                     break;
+                default:
+                    quit();
             }
         })
 };
 
+// View departments
 function displayDepartments() {
-    db.viewDepartment()
-    .then(data => {
+    db.viewDepartments()
+    .then(([data]) => {
         let departments = data
         console.table(departments)
     })
@@ -73,10 +102,12 @@ function displayDepartments() {
     })
 };
 
+// View roles
 function displayRoles() {
     db.viewRoles()
-    .then(data => {
-        let roles = data
+    .then(([data]) => {
+        let roles = data;
+        console.log("\n");
         console.table(roles)
     })
     .then(() => {
@@ -84,10 +115,11 @@ function displayRoles() {
     })
 };
 
+// View employees
 function displayEmployees() {
-    db.viewEmployee()
-    .then(data => {
-        let  = data
+    db.viewEmployees()
+    .then(([data]) => {
+        let employees = data
         console.table(employees)
     })
     .then(() => {
@@ -95,6 +127,7 @@ function displayEmployees() {
     })
 };
 
+// Add a department
 function createDepartment() {
     inquirer.prompt([
         {
@@ -109,73 +142,124 @@ function createDepartment() {
     })
 };
 
+// Add a role
 function createRole() {
+    db.viewDepartments().then(([data]) => {
+        let departments = data;
+        const departmentChoices = departments.map(({ id, name }) => ({
+            name: name, 
+            value: id
+        }));
+    
     inquirer.prompt([
         {
-            name: "name",
+            name: "title",
             message: "What is the name of the role?",
         },
         {
-            name: "name",
+            name: "salary",
             message: "What is the salary of this role?"
         },
         {
-            name: "name",
-            message: "What is the department this role will be located in?"
+            type: "list",
+            name: "department_id",
+            message: "What is the department this role will be located in?",
+            choices: departmentChoices
+
         }
     ])
-    .then(data => {
-        let name = data;
-        db.createRole(name)
+    .then(role => {
+        db.createRole(role)
+        .then(() => console.log(`Added ${role.title} to the database`))
         .then(() => promptManager());
     })
+})
 };
 
+// Add an employee
 function createEmployee() {
     inquirer.prompt([
         {
-            name: "name",
+            name: "first_name",
             message: "What is the employee's first name?",
         },
         {
-            name: "name",
+            name: "last_name",
             message: "What is the employee's last name?"
         },
-        {
-            name: "name",
-            message: "What is the employee's role?"
-        },
-        {
-            name: "name",
-            message: "Who does the employee report to?"
-        }
     ])
     .then(data => {
-        let name = data;
-        db.createEmployee(name)
-        .then(() => promptManager());
+       let first_name = data.first_name;
+       let last_name = data.last_name;
+
+       db.viewRoles()
+       .then(([data]) => {
+           let roles = data;
+           const roleChoices = roles.map(({ id, title }) => ({
+            name: title,
+            value: id
+           }))
+
+           inquirer.prompt({ 
+               type: "list",
+                name: "role_id",
+                message: "What is the employee's role?",
+                choices: roleChoices
+           })
+            .then(() => console.log(`Added ${first_name} ${last_name} to the database!`))
+            .then(() => promptManager())
+       })
     })
 };
 
+// Update an employee role
 function updateEmployeeRole() {
-    console.log('Updating employee roles');
-    const query = connection.query(
-        'UPDATE roles SET ? WHERE ?',
-        [
-            {
+    db.viewEmployees()
+    .then(([data]) => {
+        let employees = data;
+        const employeeChoices = employees.map(({ id, first_name, last_name }) => ({
+            name: `${first_name} ${last_name}`,
+            value: id
+        }));
 
-            },
-            {
-
-            }
-        ],
-        function(err, res) {
-            if (err) throw err;
-            console.log(res.affectedRoles + ' roles updated!\n');
+    prompt([
+        {
+            type: "list",
+            name: "employeeId",
+            message: "Which employee's role would you like to update?",
+            choices: employeeChoices
         }
-    );
-    console.log(query.sql);
+    ])
+    .then(data => {
+        let employeeId = data.employeeId;
+        db.viewRoles()
+        .then(([data]) => {
+            let roles = data;
+            const roleChoices = roles.map(({ id, title }) => ({
+                name: title,
+                value: id
+            }));
+
+            prompt([
+                {
+                    type: "list",
+                    name: "roleId",
+                    message: "What role would you like to assign the employee?",
+                    choices: roleChoices
+                }
+            ])
+            .then(data => db.updateEmployeeRole(employeeId, data.roleId))
+            .then(() => console.log("Employee's role has been updated"))
+            .then(() => promptManager())
+        });
+    });
+})
 };
+
+function quit() {
+    console.log("Goodbye!");
+    process.exit();
+}
 
 // function to initialize
 promptManager();

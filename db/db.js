@@ -4,14 +4,19 @@ class DB {
     constructor (connection) {
         this.connection = connection
     }
-    createEmployee(employee) {
+    viewDepartments() {
         return this.connection.promise().query(
-            "INSERT INTO employee SET ?;", employee
+            "SELECT * FROM department;"
         )
     }
-    createRole(role) {
+    viewRoles() {
         return this.connection.promise().query(
-            "INSERT INTO role SET ?;", role
+            "SELECT * FROM role;"
+        )
+    }
+    viewEmployees() {
+        return this.connection.promise().query(
+            "SELECT * FROM employee;"
         )
     }
     createDepartment(department) {
@@ -19,29 +24,27 @@ class DB {
             "INSERT INTO department SET ?;", department
         )
     }
-
-    viewDepartment() {
+    createRole(role) {
         return this.connection.promise().query(
-            "SELECT * FROM department;"
+            "INSERT INTO role SET ?;", role
         )
     }
-
-    viewRoles() {
+    createEmployee(employee) {
         return this.connection.promise().query(
-            "SELECT * FROM roles;"
+            "INSERT INTO employee SET ?;", employee
         )
     }
-
-    viewEmployees() {
-        return this.connection.promise().query(
-            "SELECT * FROM employees;"
-        )
-    }
-
     updateEmployeeRole(roleId, employeeId) {
         return this.connection.promise().query(
-            "UPDATE employee SET role_id = ? WHERE id = ?;", [roleId, employeeId]
+            "UPDATE employee SET role_id = ? WHERE id = ?;", 
+            [roleId, employeeId]
         )
+    }
+    removeEmployee(employeeId) {
+        return this.connection.promise().query(
+            "DELETE FROM employee WHERE id = ?",
+            employeeId
+        );
     }
 };
 
