@@ -13,7 +13,9 @@ Using standard code style for JavaScript, Node, MySQL, and HTML.
 Use this to track employees and employee information.
 
 ## Screenshots
-
+[Screenshots for this project](/Screenshot 1)
+(company-hierarchy/Screenshot 2.png)
+(company-hierarchy/Screenshot 3.png)
 
 ## Video
 https://drive.google.com/file/d/1-3UUfu9g1RjsbllWu-cBvr-ILm_SR9JY/view
