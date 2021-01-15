@@ -215,14 +215,14 @@ function createEmployee() {
 // Update an employee role
 function updateEmployeeRole() {
     db.viewEmployees()
-    .then(([data]) => {
-        let employees = data;
+    .then(([rows]) => {
+        let employees = rows;
         const employeeChoices = employees.map(({ id, first_name, last_name }) => ({
             name: `${first_name} ${last_name}`,
             value: id
         }));
 
-    prompt([
+    inquirer.prompt([
         {
             type: "list",
             name: "employeeId",
@@ -230,17 +230,17 @@ function updateEmployeeRole() {
             choices: employeeChoices
         }
     ])
-    .then(data => {
-        let employeeId = data.employeeId;
+    .then(res => {
+        let employeeId = res.employee_id;
         db.viewRoles()
-        .then(([data]) => {
-            let roles = data;
+        .then(([rows]) => {
+            let roles = rows;
             const roleChoices = roles.map(({ id, title }) => ({
                 name: title,
                 value: id
             }));
 
-            prompt([
+            inquirer.prompt([
                 {
                     type: "list",
                     name: "roleId",
@@ -248,7 +248,7 @@ function updateEmployeeRole() {
                     choices: roleChoices
                 }
             ])
-            .then(data => db.updateEmployeeRole(employeeId, data.roleId))
+            .then(data => db.updateEmployeeRole(employeeId, res.role_id))
             .then(() => console.log("Employee's role has been updated"))
             .then(() => promptManager())
         });
